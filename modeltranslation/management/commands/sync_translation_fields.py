@@ -149,10 +149,7 @@ class Command(BaseCommand):
             col_type = f.db_type(connection=connection)
             field_sql = [style.SQL_FIELD(qn(f.column)), style.SQL_COLTYPE(col_type)]
             # column creation
-            try:
-                stmt = "ALTER TABLE %s ADD COLUMN %s" % (qn(db_table), ' '.join(field_sql))
-            except ProgrammingError:
-                stmt = "ALTER TABLE %s ADD %s" % (qn(db_table), ' '.join(field_sql))
+            stmt = "ALTER TABLE %s ADD %s" % (qn(db_table), ' '.join(field_sql))
             if not f.null:
                 stmt += " " + style.SQL_KEYWORD('NOT NULL')
             sql_output.append(stmt + ";")
