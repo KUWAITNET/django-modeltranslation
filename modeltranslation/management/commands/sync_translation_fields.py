@@ -12,6 +12,7 @@ from django import VERSION
 from django.core.management.base import BaseCommand
 from django.core.management.color import no_style
 from django.db import connection
+from django.db.utils import ProgrammingError
 
 from modeltranslation.settings import AVAILABLE_LANGUAGES
 from modeltranslation.translator import translator
@@ -148,7 +149,10 @@ class Command(BaseCommand):
             col_type = f.db_type(connection=connection)
             field_sql = [style.SQL_FIELD(qn(f.column)), style.SQL_COLTYPE(col_type)]
             # column creation
-            stmt = "ALTER TABLE %s ADD COLUMN %s" % (qn(db_table), ' '.join(field_sql))
+            try:
+                stmt = "ALTER TABLE %s ADD COLUMN %s" % (qn(db_table), ' '.join(field_sql))
+            except ProgrammingError:
+                stmt = "ALTER TABLE %s ADD %s" % (qn(db_table), ' '.join(field_sql))
             if not f.null:
                 stmt += " " + style.SQL_KEYWORD('NOT NULL')
             sql_output.append(stmt + ";")
